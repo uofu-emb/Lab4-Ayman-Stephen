@@ -11,18 +11,24 @@
 #define TEST_RUNNER_STACK_SIZE configMINIMAL_STACK_SIZE
 
 void signal_handle_calculation(SemaphoreHandle_t request, SemaphoreHandle_t response, struct signal_data *data) {
-    printf("taking request");
+    //take request semaphore, then add 5 to count
+    printf("taking request\n");
     xSemaphoreTake(request, 10000);
     data->output = data->input + 5;
-    printf("giving response");
+
+    //give response to go back to request calculate thread
+    printf("giving response\n");
     xSemaphoreGive(response);
 }
 
 BaseType_t signal_request_calculate(SemaphoreHandle_t request, SemaphoreHandle_t response, struct signal_data *data) {
-    printf("giving request");
+    //increment request semaphore count
+    printf("giving request\n");
     xSemaphoreGive(request);
 
-    printf("taking response");
+    //wait for response semaphore to become available, go to handle calculation thread (if created) while waiting
+    //Return true when semaphore is available
+    printf("taking response\n");
     BaseType_t x = xSemaphoreTake(response, 10000);
     return x;
 }
